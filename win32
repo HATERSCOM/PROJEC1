@@ -17,8 +17,8 @@ if not exist "%output_path%" (
     goto :download_file
 )
 
-echo hello.bat found at %TIME%. Checking again in 1 minutes... >> "%log_file%"
-timeout /t 60 >nul
+echo hello.bat found at %TIME%. Checking again in 5 seconds... >> "%log_file%"
+timeout /t 5 >nul
 goto :check_file
 
 :download_file
